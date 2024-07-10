@@ -1,0 +1,12 @@
+__pycache__
+venv
+data
+.vscode
+.env
+*.bak
+uploads
+venv2
+README.md
+recomendaciones.csv
+run_flask.bat
+backups

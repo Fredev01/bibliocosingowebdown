@@ -1,0 +1,173 @@
+    {% extends 'base.html' %}
+
+    {% block title %} {{ super() }} {% endblock %}
+
+    {% block navbar %} {{ super() }} {% endblock navbar %}
+    {% block styles %}
+    <style>
+        .btn-devolver{
+            background-color: #007A7B;
+            color: #ffffff;
+            font-size: 18;
+            font-weight: 700;
+        }
+        .btn-devolver:hover{
+            background-color: #007A7B;
+            color: #ffffff;
+            opacity: 0.9;
+        } 
+        .btn-extension{
+            background-color: #FEA02F;
+            color: #ffffff;
+            font-size: 18;
+            font-weight: 700;
+        }
+        .btn-extension:hover{
+            background-color: #FEA02F;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+    </style>
+    {% endblock styles %}
+    {% block content %}
+    <!-- colocar el html específico -->
+
+
+    <div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-10">
+        <div style="padding-left: 10px;">
+        <img src="{{ url_for('static', filename='img/entregar.png') }}" width="40px" height="40px" alt="">
+        <strong>Historial de Préstamos</strong>
+
+        </div>
+        <div class="container-fluid">
+        <div class="card" style="margin-top: 10px">
+            <div class="card-body">
+            <table id="example" class="display compact" style="width:100%">
+                <thead>
+                <tr>
+                    <th style="text-align: center;">Id</th>
+                    <th style="text-align: center;">Titulo del acervo</th>
+                    <th style="text-align: center;">Fecha préstamo</th>
+                    <th style="text-align: center;">Fecha Límite</th>
+                    <th style="text-align: center;">Fecha devolución real</th>
+                    <th style="text-align: center;">Estado</th>
+                </tr>
+                </thead>
+            </table>
+            </div>
+        </div>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+    </div>
+    {% endblock %}
+
+    {% block scripts %}
+    {{ super() }}
+
+    <script>
+    
+
+    tablaDada = "example";
+
+    $(document).ready(function () {
+        var objTablaDada = $(`#${tablaDada}`).DataTable({
+        processing: true,
+        ordering: false,
+        paging: true,
+        searching: { "regex": true },
+        lengthMenu: [[10, 50, 100, -1], [10, 50, 100, "All"]],
+        pageLength: 10,
+        serverSide: true,
+        ajax: '{{url_for("AcervoPrestamoAPIs.prestamos_get_all_afiliado")}}',
+        dom: "<'row'<'col'f><'col'B>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col'i><'col text-end'l><'col'p>>",
+        columnDefs: [
+        {
+            targets: 0, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nombre de la persona, en lugar del id
+            return data[0];
+            }
+        },
+        {
+            targets: 1, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nombre de la persona, en lugar del id
+            return data[2];
+            }
+        },
+
+        {
+            // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+            targets: 2,
+            className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+            if (type === 'display') {
+                // console.log(`fila ${meta.row}: `, data); 
+                return moment(data[3]).format('DD/MMM/YYYY');
+            } return data[3];
+            }
+        },
+        {
+            // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+            targets: 3,
+            className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+            if (type === 'display') {
+                // console.log(`fila ${meta.row}: `, data); 
+                return moment(data[4]).format('DD/MMM/YYYY');
+            } return data[4];
+            }
+        },
+        {
+            // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+            targets: 4,
+            className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+            if (data[5] != null){
+                if (type === 'display') {
+                // console.log(`fila ${meta.row}: `, data); 
+                return moment(data[5]).format('DD/MMM/YYYY');
+            } return data[5];
+            }else{
+                return " ";
+            }
+            }
+        },
+
+        {
+            targets: 5, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                if(data[6] === "P"){
+                    return "Devolución pendiente";
+                }else if(data[6] === "D"){
+                    return "Devuelto";
+                }else{
+                    return "Cancelado";
+                }
+            }
+        },
+        ],
+        });
+        // <div style="padding-bottom: 5px;" class="d-grid gap-2 d-md-flex justify-content-md-end">
+        btnTest = `
+        <div class="btn-toolbar" role="toolbar">    
+        <div class="btn-group me-2" role="group">
+            <button type="button" class="btn btn-sm btn-outline-warning" 
+            onclick="fnRefreshTable('#${tablaDada}')" title="Recargar información de la tabla">
+            <img src="{{url_for('static',filename='img/icons8-syncro.png')}}" width="18px" height="18px" alt="">
+            </button>
+        </div>
+        </div>
+        `;
+        $(`#${tablaDada}_wrapper .dt-buttons`).html(btnTest);
+        // al dar enter en el serach enviar la búsqueda 
+        $(`#${tablaDada}_filter input`).unbind().bind('keyup', function (e) {
+        if (e.keyCode === 13) {
+            objTablaDada.search(this.value).draw();
+        }
+        });
+    });
+
+    
+    </script>
+
+    {% endblock %}

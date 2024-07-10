@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="checkout icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <title>
+    {% block title %}
+    Bibliocosingo
+    {% endblock title %}
+  </title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-5.3.2-dist/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables/datatables.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='select2.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='sweetalert2.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dropzone/5.9.2/dropzone.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='noty/3.1.4/noty.min.css') }}">
+  <script src="{{ url_for('static', filename='dropzone/5.9.2/dropzone.min.js') }}"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script> -->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.css"> -->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css"/> -->
+  <!-- <link rel="preconnect" href="https://fonts.googleapis.com" /> -->
+  <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='fontsgoogleapis/css2.css') }}">
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" /> -->
+  <!-- == icon == -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome/6.3.0/css/all.min.css') }}">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" /> -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables/Responsive-2.5.0/css/responsive.bootstrap5.min.css') }}">
+  <style>
+    .logo-img {
+      display: block;
+      margin: 80px auto 50px;
+      width: 500px;
+      height: auto;
+      opacity: 0.8;
+    }
+    .separadores{
+  width: 50px;
+  height: 250px;
+}
+  </style>
+  {% block styles %}
+  {% endblock %}
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+  
+        <a class="navbar-brand" href="/">
+          <img src="{{ url_for('static', filename='img/log.png') }}" width="40px" height="40px" alt=""> Biblioteca
+          Municipal Ocosingo
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+  
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  
+          <ul class="navbar-nav ms-auto">
+  
+            {% if usuario_autenticado %}
+            <!-- Avatar y menú desplegable -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <img src="{{ url_for('static', filename='img/Imagen9.png') }}" width="30px" height="30px"
+                  class="d-inline-block align-top rounded-circle" alt="Avatar">
+                Bienvenido {{ full_name }}
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout(`{{ url_for('AuthApi.logout') }}`, 'DELETE');">Salir</a>
+                </li>
+              </ul>
+            </li>
+            {% else %}
+            <!-- <a download="BiblOco" href="{{ url_for('static', filename='BibliOco.apk') }}" class="nav-link btn custom-btn-color custom-download-btn" style="color: white; font-size: small; display: flex; align-items: center; margin-top: 10px; margin-bottom: 14px;">
+              <img src="{{ url_for('static', filename='img/apk-extension.png') }}" width="35px" height="35px" class="d-inline-block align-top" alt="Avatar">
+              Descargar app móvil TA
+            </a> -->
+            <li class="nav-item dropdown"> 
+              <a class="nav-link btn custom-btn-color" style="color: #fff; margin-top: 10px;" href="{{ url_for('AuthRoute.get_login') }}">Login</a>
+          </li>          
+            {% endif %}
+  
+            {% block navbar %}
+            {% endblock navbar %}
+  
+          </ul>
+  
+        </div>
+      </div>
+  
+    </nav>
+  </header>
+  {% block content %}
+  {% endblock content %}
+  <div class="separadores"></div>
+<div class="separadorres"></div>
+  <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='xlsx.full.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='popper.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap-5.3.2-dist/js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='DataTables/datatables.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap-select.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='select2.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='sweetalert2.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='moment-with-locales.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='common.js') }}"></script>
+  <script src="{{ url_for('static', filename='noty/3.1.4/noty.min.js') }}"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script> -->
+  <script src="{{ url_for('static', filename='DataTables/DataTables-1.13.10/js/dataTables.bootstrap5.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='DataTables/Responsive-2.5.0/js/dataTables.responsive.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='DataTables/Responsive-2.5.0/js/responsive.bootstrap5.min.js') }}"></script>
+
+<script>
+    async function logout(link, method_given) {
+      csrf = '{{ csrf_token() }}';
+      var formData = new FormData();
+      formData.append('csrf_token', csrf);
+      const resp = await fetch(link, {
+        method: method_given, body: formData
+      })
+      if (!resp.ok) throw Error("There was a problem in the logout request")
+      else if (resp.status === 403) {
+        throw Error("Missing or invalid token");
+      } else if (resp.status != 200) {
+        throw Error('Uknon error');
+      }
+      localStorage.removeItem("jwt-token");
+      location.replace("/"); // redirect al index, pero ya sin cookies
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      var body = document.body;
+      var footer = document.querySelector('.footer');
+
+      // Verifica si el contenido de la página excede la altura de la ventana
+      if (body.clientHeight < window.innerHeight) {
+        footer.style.display = 'block'; // Muestra el footer si no hay scroll
+      } else {
+        // Muestra el footer si se hace scroll hacia abajo
+        window.addEventListener('scroll', function () {
+          if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            footer.style.display = 'block';
+          } else {
+            footer.style.display = 'none';
+          }
+        });
+      }
+    });
+
+  </script>
+  {% block scripts %}
+  {% endblock %}
+  <footer class="footer">
+    <div class="container-foot">
+        <div class="col2">
+                <img src="{{ url_for('static', filename='img/logob.png') }}" width="50px" height="50px" alt="">
+                Bibliocosingo
+            
+        </div>
+
+        <a>Biblioteca Municipal de Ocosingo 2024 - Todos los derechos reservados</a>
+        <ul class="media-icons">
+            <li>
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+            </li>
+        </ul>
+
+        <ul class="menu">
+            <a href="{{url_for('DireccionPages.get_mostrar_mapa')}}">Dirección Av. Segunda Sur Ote., Candelaria, 29950 Ocosingo, Chis.</a>
+        </ul>
+    </div>
+</footer>
+
+</body>
+
+</html>

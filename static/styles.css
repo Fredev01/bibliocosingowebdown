@@ -1,0 +1,40 @@
+.map-container {
+    width: 100%; /* El contenedor del mapa ocupa todo el ancho disponible */
+    max-width: 800px; /* Ancho máximo del contenedor */
+    margin: 20px auto 0; /* Margen superior de 50px y centrado horizontalmente */
+}
+
+#map {
+    width: 100%; /* El mapa ocupa todo el ancho del contenedor */
+    height: 500px; /* Altura del mapa */
+}
+
+
+#mapa {
+    height: 50%;
+    margin: 0;
+    padding: 0;
+}
+
+.custom-download-btn {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #007A7B;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.custom-download-btn img {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.custom-download-btn:hover {
+    background-color: #dc8b12;
+}

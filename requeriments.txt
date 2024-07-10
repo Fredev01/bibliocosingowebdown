@@ -1,0 +1,16 @@
+flask
+flask-jwt-extended
+flask_sqlalchemy
+sqlalchemy_utils
+python-dotenv
+pymysql
+passlib[bcrypt]
+
+flask-wtf
+WTForms #
+flask-login
+cryptography
+pandas
+Flask-Limiter
+email_validator
+fpdf2

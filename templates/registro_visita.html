@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_hidden, render_check, render_select, render_modal %}
+
+{% block title %} {{ super() }} {% endblock %}
+
+{% block navbar %} {{ super() }} {% endblock navbar %}
+
+{% block content %}
+<!-- colocar el html específico -->
+
+{% call render_modal("idObjModal", "idTitleObjModal", "modal-lg", "saveData(this)") %}
+
+<div class="tab-content pt-2" id="myTabContent" style="max-height: 500px; overflow-y: scroll;">
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="modal-body overflow-auto">
+      <form id="formMain">
+        <div class="row" style="margin: -20px 0px;">
+          {{ obj_form.csrf_token }}
+          {{ render_hidden(obj_form.id) }}
+          {{ render_field("col-md-6", obj_form.fechavisita) }}
+          {{ render_field("col-md-6", obj_form.bibliusuario_id) }}
+          {{ render_field("col-md-6", obj_form.escuela_id) }}
+          {{ render_field("col-md-6", obj_form.visitantetipo_id) }}
+        </div>
+      </form><br>
+    </div>
+  </div>
+</div>
+{% endcall %}
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModalFrente" tabindex="-1" aria-labelledby="exampleModalFrenteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title" id="exampleModalFrenteLabel">Establecer o actualizar la imágen actual</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <label class="label">Establece o actualiza un archivo de imagen asociado al <strong>Acervo
+                bibliográfico</strong> haciendo clic en el área siguiente y seleccionando el archivo.
+            </label>
+            <br>
+            <p class="text-danger fst-italic">
+              Nota. Esta acción reemplazará inmediatamente al archivo anterior y no es posible deshacer la operación.
+              Procede con seguridad
+            </p>
+          </div>
+          <!-- Formulario Dropzone dentro del modal -->
+          <form id="formFoto" action="{{url_for('AfiliadoAPIs.reg_upload_file_frente', tipo='foto')}}" method="post"
+            enctype="multipart/form-data" class="dropzone">
+            <!-- Otros campos del formulario -->
+            {{ obj_form.csrf_token }}
+            {{ render_hidden(obj_form.id) }}
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+            Salir
+          </button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-8">
+    <div style="padding-left: 10px;">
+      <img src="{{ url_for('static', filename='img/visita.png') }}" width="40px" height="40px" alt="">
+      <strong>Registro de visitas </strong>
+    </div>
+    <div class="container-fluid">
+      <div class="card" style="margin-top: 10px">
+        <div class="card-body">
+          <table id="example" class="display compact responsive" style="width:100%">
+            <thead>
+              <tr>
+                <th style="text-align: center;">Id</th>
+                <th style="text-align: center;">Fecha visita</th>
+                <th style="text-align: center;">Visitante</th>
+                <th style="text-align: center;">Escuela</th>
+                <th style="text-align: center;">Tipo de visitante</th>
+
+                <th class="tam" style="text-align: center;"></th>
+                <th class="tam" style="text-align: center;"></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+  formDado = "formMain";
+  modalDado = "idObjModal";
+  modaltitleDado = "idTitleObjModal";
+  tablaDada = "example";
+
+  function saveData(objHtmlClicked) {
+    $(`#${modalDado} #registro_id`).attr('disabled', false);
+    var formData = new FormData(document.getElementById(formDado));
+    $(`#${modalDado} #registro_id`).attr('disabled', true);
+    if (!isFormValid(formDado)) {
+      return;
+    }
+    // Realizar validaciones adicionales
+    // hacer la petición al servidor
+    objHtmlClicked.disabled = true;
+    sendDatosToServer("{{url_for('RegistroVisitaAPIs.api_registro_visita_add')}}", 'POST', formData).then((resp) => {
+      console.log(resp)
+      if (resp.success) {
+        showMsg('success', `Registro realizado correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000).then((result) => {
+          objHtmlClicked.disabled = false;
+          resetModalGeneric(formDado, modalDado, true);
+          $(`#${tablaDada}`).DataTable().ajax.reload();
+        });
+      } else {
+        showError('error', 'Verifique la información proporcionada', resp, 4000).then((result) => {
+          objHtmlClicked.disabled = false;
+        });
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    var objTablaDada = $(`#${tablaDada}`).DataTable({
+      processing: true,
+      ordering: false,
+      paging: true,
+      searching: { "regex": true },
+      lengthMenu: [[10, 50, 100, -1], [10, 50, 100, "All"]],
+      pageLength: 10,
+      serverSide: true,
+      ajax: '{{url_for("RegistroVisitaAPIs.registros_get_all")}}',
+      dom: "<'row'<'col'f><'col'B>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row'<'col'i><'col text-end'l><'col'p>>",
+      columnDefs: [
+      {responsivePriority: 1, targets:0},
+      { responsivePriority: 2, targets: 5 },
+      { responsivePriority: 3, targets: 6 },
+      { responsivePriority: 6, targets: 2 },
+
+      {
+        targets: 0, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+          // mostrar el nombre de la persona, en lugar del id
+          return data[0];
+        }
+      },
+
+        {
+          // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+          targets: 1,
+          className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+            if (type === 'display') {
+              // console.log(`fila ${meta.row}: `, data); 
+              return moment(data[1]).format('DD/MMM/YYYY');
+            } return data[1];
+          }
+        },
+        {
+          targets: 2, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nombre de la persona, en lugar del id
+            return data[3];
+          }
+        },
+        {
+          targets: 3, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nombre de la persona, en lugar del id
+            return data[5];
+          }
+        },
+        {
+          targets: 4, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nombre de la persona, en lugar del id
+            return data[7];
+          }
+        },
+
+        {
+          targets: 5, data: null, render: function (data, type, row, meta) {
+            return `
+            <button type="button" class="btn btn-sm btn-outline" 
+              onclick="showModal(${meta.row})" title="Editar registro">
+              <img src="{{url_for('static',filename='img/editar.png')}}" width="20px" height="20px" alt="">
+            </button>
+            `
+          }
+        },
+        {
+          targets: 6, data: null,
+          render: function (data, type, row, meta) {
+            return `
+            <button type="button" class="btn btn-sm btn-outline" 
+              onclick="deleteRow(${meta.row})" title="Borrar registro?">
+              <img src="{{url_for('static',filename='img/eliminar.png')}}" width="20px" height="20px" alt="">
+            </button>
+            `
+          },
+        },
+      ],
+    });
+    // <div style="padding-bottom: 5px;" class="d-grid gap-2 d-md-flex justify-content-md-end">
+    btnTest = `
+    <div class="btn-toolbar" role="toolbar">    
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning" title="Agregar nuevo registro"
+          onclick="showModal()">
+          <img src="{{url_for('static',filename='img/icons8-mas.png')}}" width="18px" height="18px" alt="">
+        </button>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning" 
+          onclick="fnRefreshTable('#${tablaDada}')" title="Recargar información de la tabla">
+          <img src="{{url_for('static',filename='img/icons8-syncro.png')}}" width="18px" height="18px" alt="">
+        </button>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning"
+          onclick="fnExportTableToExcel('${tablaDada}','clasificaciones')" title="Descargar registros">
+          <img src="{{url_for('static',filename='img/icons8-descarga.png')}}" width="18px" height="18px" alt="">
+        </button>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning"
+         title="Descargar registros en pdf">
+         <a href="{{url_for('RegistroVisitaAPIs.download_report')}}"> <img src="{{url_for('static',filename='img/icons8-pdf.png')}}" width="20px" height="20px" alt=""></a>
+        
+        </button>
+      </div>
+
+    </div>
+    `;
+    $(`#${tablaDada}_wrapper .dt-buttons`).html(btnTest);
+    // al dar enter en el serach enviar la búsqueda 
+    $(`#${tablaDada}_filter input`).unbind().bind('keyup', function (e) {
+      if (e.keyCode === 13) {
+        objTablaDada.search(this.value).draw();
+      }
+    });
+  });
+
+  // Editar registro
+  function showModal(idRow = null) {
+    resetModalGeneric(formDado, modalDado, false)
+
+    $(`#${modaltitleDado}`).html("Agregar nuevo registro");
+
+    let bibliusuario_id = "-1";
+    let escuela_id = "-1";
+    let visitantetipo_id = "-1";
+
+    if (idRow != null) {
+      $(`#${modaltitleDado}`).html("Editar registro");
+      // mostrar los datos en los inputs correspondientes
+      var data = $('#example').DataTable().row(idRow).data();
+      // console.log(data);
+      $(`#${formDado} #id`).val(data[0]);
+      $(`#${formDado} #fechavisita`).val(moment(data[1]).format('YYYY-MM-DD'));
+      // $(`#${formDado} #foto`).val(data[2]);
+      bibliusuario_id = data[2];
+      escuela_id = data[4];
+      visitantetipo_id = data[6];
+    }
+    setSelect(`#${formDado} #bibliusuario_id`, "{{url_for('AfiliadoAPIs.afiliado_get_combo')}}", 'id', '' + bibliusuario_id);
+    setSelect(`#${formDado} #escuela_id`, "{{url_for('EscuelaAPIs.escuela_get_combo')}}", 'id', '' + escuela_id);
+    setSelect(`#${formDado} #visitantetipo_id`, "{{url_for('VisitantetipoAPIs.visitantetipo_get_combo')}}", 'id', '' + visitantetipo_id);
+
+    $(`#${modalDado}`).modal("show");
+    setTimeout(() => {
+      // despues de 10 milisegundos, enfocarse la primera caja de texto
+      $(`#${formDado} #nombre`).focus();
+    }, 200);
+  }
+
+  // Eliminar un registro
+  function deleteRow(idRow = null) {
+    var data = $(`#${tablaDada}`).DataTable().row(idRow).data();
+    Swal.fire({
+      icon: "error",
+      title: `Realmente deseas eliminar este registro?`,
+      text: "Se borrará de forma permanente!!!",
+      showCancelButton: true,
+      confirmButtonText: 'Borrar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        var formData = new FormData();
+        formData.append("id", data[0])
+        formData.append("csrf_token", $(`#csrf_token`).val())
+
+        sendDatosToServer("{{url_for('RegistroVisitaAPIs.registro_visita_delete')}}", "DELETE", formData
+        ).then((resp) => {
+          // console.log(resp);
+          if (resp && resp.data.oper == true) {
+            showMsg("success", `Se eliminó correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000
+            ).then((result) => {
+              $(`#${tablaDada}`).DataTable().ajax.reload();
+            });
+          } else {
+            showError("error", "Verifique la información proporcionada", resp, 4000).then((result) => {
+            });
+          }
+        });
+      }
+    });
+
+  }
+  $(document).ready(function () {
+    var myDropzone = Dropzone.forElement("#formFoto");
+    myDropzone.options.headers = { "Authorization": 'Bearer ' + getToken() };
+    myDropzone.options.maxFiles = 1;
+    myDropzone.options.maxFilesize = 5;
+    myDropzone.options.acceptedFiles = ".png,.jpg,.jpeg";
+    myDropzone.on("addedfile", file => {
+      // console.log("se agregó un archivo");
+      // console.log(file);
+      new Noty({
+        type: 'warning',
+        text: 'Operación realizada con éxito...',
+        timeout: 3000, // Opcional: tiempo en milisegundos para que el mensaje desaparezca automáticamente
+      }).show();
+    });
+
+    // Cuando se cierre el modal borrar el archivo y actualizar la tabla
+    $('#exampleModalFrente').on('hidden.bs.modal', function (e) {
+      var dropzone = Dropzone.forElement("#formFoto");
+      if (dropzone) {
+        dropzone.removeAllFiles();
+        $(`#${tablaDada}`).DataTable().ajax.reload();
+      }
+    });
+
+  });
+
+  function updateFile(idRow = null) {
+    formFile = "formFoto";
+    resetModalGeneric(formFile, "exampleModalFrente", false)
+    if (idRow != null) {
+      var data = $('#example').DataTable().row(idRow).data();
+      $(`#${formFile} #id`).val(data[0]);
+    }
+    $(`#exampleModalFrente`).modal("show");
+  }
+</script>
+
+{% endblock %}

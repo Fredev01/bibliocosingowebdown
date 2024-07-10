@@ -1,0 +1,44 @@
+version: '3.6'
+services:
+  db:
+    image: mariadb:latest
+    container_name: bibliocosingoweb
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: $DATABASE_ROOT_PWD
+      MYSQL_DATABASE: $DATABASE_NAME
+      MYSQL_USER: $DATABASE_USER
+      MYSQL_PASSWORD: $DATABASE_USER_PWD
+    ports:
+      - "3326:3306"
+    volumes:
+      - ./data/db:/var/lib/mysql
+      # - /home/armando/dockervols/mariadb-gen:/var/lib/mysql
+# docker compose up -d
+# sudo docker exec -it bibliocosingoweb mariadb -p
+
+# docker exec -i wordpress-mariadb /usr/bin/mariadb-dump -hlocalhost -u manag3r_wp -p3sta_M7C0ntr4_v3r75ec_ wordpress > backup_wordpress.sql
+
+# sudo docker exec wordpress-mariadb mysql -u root -p wordpress wordpress < ./backup/.sql
+
+
+# cuenta de correo para git
+# cbtautsdevs@gmail.com
+# GZS4V!ej9,&ZLH%
+
+# Token a emplear como pwd para conectarse al server gitlab encontrado en dev.utselva.edu.mx
+# glpat-HoFL7knaBHN_er8qqX-z
+
+# para desactivar la verificación SSL solo para tu directorio actual en Git
+# export GIT_SSL_NO_VERIFY=true
+# git config --global http.sslVerify false
+
+# cuenta de wordpress en dev.utselva.edu.mx
+# amendezm2009
+# DRZtSILa)PE5fbwpF6
+# amendezm2009@gmail.com
+
+# sudo chown -R armando:armando /home/armando/wordpress/db
+# chmod -R 755 /home/armando/wordpress/db
+# sudo chown -R armando:armando /home/armando/wordpress/db
+# 3sta_M7C0ntr4_v3r75ec_

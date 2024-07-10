@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_check, modal %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+
+{% block styles %}
+
+<style>
+  h3 {
+    text-align: center;
+  }
+
+  .col-3 {
+    padding-right: 10px;
+    /* Ajusta el espacio horizontal entre las columnas */
+    padding-left: 10px;
+  }
+
+  .row {
+    padding-right: 0px;
+    /* Ajusta el espacio horizontal entre las columnas */
+    padding-left: 0px;
+  }
+
+  /* Estilos adicionales para las tarjetas */
+  .card {
+    /*border: 1px solid rgb(87, 48, 12);*/
+    border-radius: 5px;
+    background-color: rgb(247, 245, 242);
+    padding: 10px;
+    border-color: rgb(220, 199, 179);
+    margin-bottom: 10px;
+    box-shadow: 0 8px 8px rgb(206, 169, 134);
+  }
+
+  .card img {
+    margin-right: 10px;
+  }
+
+  a {
+    text-align: center;
+    color: #0e7591;
+  }
+
+  a:hover {
+    /* color: rgb(82, 82, 255); */
+    color: rgb(105, 165, 221)
+  }
+
+  a:active {
+    color: blue;
+  }
+</style>
+
+{% endblock styles %}
+
+{% block content %}
+
+{% if usuario_autenticado %}
+<br>
+<!-- <a href="{ { url_for('ClientePages.get_cliente') }}">Ir a clientes</a> -->
+<h3 for="">Menú principal</h3>
+<br>
+<div class="container ">
+  {% if is_admin %}
+  <!-- Primera fila -->
+  <div class="row">
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('AcervotituloPages.get_acervotitulo')}}">
+          <img src="static/img/libro1.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Acervo bibliográfico</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('EstantePages.get_estante')}}">
+          <img src="static/img/estante.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Estante</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('AfiliadoPages.get_afiliado')}}">
+          <img src="static/img/identidad.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Visitantes/afiliados</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('PersonalPages.get_personal')}}">
+          <img src="static/img/empleado.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Personal</label>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Segunda fila -->
+  <div class="row">
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('TipoPages.get_tipo')}}">
+          <img src="static/img/libro2.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Tipo de acervo</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('AreaFisicaPages.get_area_fisica')}}">
+          <img src="static/img/libro3.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Área Física</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('RegistroVisitaPages.get_registro_visita')}}">
+          <img src="static/img/visita.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Visitas</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('UserPages.get_user')}}">
+          <img src="static/img/usuario.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Cuentas de usuario</label>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Tercera fila -->
+  <div class="row">
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('EditorialPages.get_editorial')}}">
+          <img src="static/img/libro6.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Editorial</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('ClasificacionPages.get_clasificacion')}}">
+          <img src="static/img/libro4.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Clasificaciones</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('AcervoPrestamoPages.get_acervoprestamo')}}">
+          <img src="static/img/entregar.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Préstamos/devoluciones</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <!-- <div class="card d-flex align-items-center">
+        <a href="{{url_for('ClasificacionPages.get_clasificacion')}}">
+          <img src="static/img/datos.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Datos de la biblioteca</label>
+          </div>
+        </a>
+      </div> -->
+    </div>
+  </div>
+  <!-- Cuarta fila -->
+  <div class="row">
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('EscuelanivelPages.get_escuelanivel')}}">
+          <img src="static/img/Imagen10.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Nivel educativo</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('EscuelaPages.get_escuela')}}">
+          <img src="static/img/colegio.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Escuelas</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('VisitantetipoPages.get_visitantetipo')}}">
+          <img src="static/img/rotacion.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Tipo de visitante</label>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="card d-flex align-items-center">
+        <a href="{{url_for('BackupsAPIs.get_backup')}}">
+          <img src="static/img/nube.png" width="60px" height="60px" class="mr-3" alt="">
+          <div>
+            <label for="">Respaldo de la BD</label>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="row">
+  <div class="col-sm-6 col-md-3">
+    <div class="card d-flex align-items-center">
+      <a href="{{url_for('AcervoPrestamoPages.get_acervoprestamo_afiliado')}}">
+        <img src="static/img/entregar.png" width="60px" height="60px" class="mr-3" alt="">
+        <div>
+          <label for="">Historial de préstamos</label>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <div class="card d-flex align-items-center">
+      <a href="{{url_for('AcervotituloPages.get_acervotitulo_afiliado')}}">
+        <img src="static/img/libro1.png" width="60px" height="60px" class="mr-3" alt="">
+        <div>
+          <label for="">Acervo bibliográfico</label>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+  {% endif %}
+</div>
+{% endif %}
+
+
+
+  <!-- <img src="{{ url_for('static', filename='img/log.png') }}" class="logo-img" alt=""> -->
+
+  {% endblock content %}
+
+  {% block scripts %}
+
+  <script>
+    // colocar los scripts específicos del módulo
+    window.addEventListener('scroll', function () {
+      var footer = document.querySelector('.footer');
+      if (window.scrollY > 0) {
+        footer.style.display = 'block'; // Mostrar el footer si se ha desplazado hacia abajo
+      } else {
+        footer.style.display = 'none'; // Ocultar el footer si está en la parte superior de la página
+      }
+    });
+  </script>
+
+  {% endblock scripts %}

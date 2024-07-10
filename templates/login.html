@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_check, modal %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 70;
+      padding: 10;
+    }
+
+    .cont-main > .container {
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 50px;
+      background-color: rgba(245, 245, 245, 0.8);
+      border-radius: 5px;
+      box-shadow: 0 0 60px rgba(224, 187, 23, 0.849);
+      display: flex;
+      align-items: center;
+      flex-direction: column; 
+    }
+
+    #logo {
+      max-width: 300px;
+      height: auto;
+      margin-right: 0px;
+    }
+
+    h2 {
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    label{
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    input[type="submit"] {
+      background-color: #926d27;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #42340e;
+    }
+
+    body {
+      background-image: url('/static/img/espera.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(100%);
+    }
+    /* Añadimos un margen inferior a los campos de entrada */
+input[type="text"],
+input[type="password"] {
+    margin-bottom: 15px;
+}
+
+
+/* Ajustamos el margen superior del botón */
+input[type="submit"] {
+    margin-top: 15px;
+}
+
+/* Estilo para los campos de entrada */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box; /* incluir el padding en el ancho total */
+}
+
+/* Estilo para el botón de inicio de sesión */
+input[type="submit"] {
+  
+    padding: 10px 20px; /* ajusta el padding horizontalmente */
+    border: none; /* quitamos el borde */
+    border-radius: 3px;
+    background-color: #926d27;
+    color: #fff;
+    cursor: pointer;
+     
+}
+.btn-login{
+  display: block !important;
+  width: 65% !important;
+  margin: auto;
+  margin-bottom: 100px;
+}
+
+/* Cambiamos el color del botón al pasar el mouse */
+input[type="submit"]:hover {
+    background-color: #42340e;
+}
+.separador{
+  width: 50px;
+  height: 70px;
+}
+  </style>
+</head>
+
+<body>
+  <div class="cont-main">
+    <div class="container">
+      <img src="/static/img/logoBliblo.png" alt="Logo" id="logo">
+      <div>
+        <h2>Iniciar sesión</h2>
+        <form id="formMain">
+          {{ login_form.csrf_token }}
+          <div class="row">
+            {{ render_field("col-12", login_form.username) }}
+            {{ render_field("col-12", login_form.password) }}
+        </form>
+      </div>
+      <!-- { { login_form.recaptcha }} -->
+      <button type="button" class="btn btn-primary btn-login" onclick="SendMessage()">Iniciar</button>
+      </form>
+  
+    </div>
+  </div>
+  <div class="separador"></div>
+  <div class="separador"></div>
+  <div class="separador"></div>
+
+
+  <script>
+
+
+    function SendMessage() {
+      formName = "formMain";
+      var formData = new FormData(document.getElementById(formName));
+      $(`#${formName}`).addClass("was-validated");
+      if (!$("#formMain")[0].checkValidity()) {
+        $(`#${formName} .invalid-feedback`).each(function () {
+          if ($(this)[0].offsetParent) { return; }
+        }); return;
+      }
+      // Realizar validaciones adicionales
+      //captcharesp = grecaptcha.getResponse();
+      //if ( !captcharesp ){  alert("El captcha es requerido"); return; }
+      // hacer la petición al servidor
+      fetch("{{url_for('AuthApi.api_login')}}", { method: 'POST', body: formData }).then((response) => {
+        response.json().then((data) => {
+          if (data.success) {
+            // alert(`Bienvenido ${data.data.full_name}`);
+            // Swal.fire({
+            //   title: `Bienvenido ${data.data.full_name}`,
+            //   icon: 'success',
+            //   timer: 3000, // Duración en milisegundos (3 segundos en este ejemplo)
+            //   timerProgressBar: true,
+            //   showConfirmButton: false // Oculta el botón "OK" para que el mensaje no se cierre manualmente
+            // });
+
+            // almacenar el jwt token
+            localStorage.setItem("jwt-token", data.access_token);
+            // console.log(data.access_token);
+            // console.log(data.access_token.data);
+            location.replace("{{ret}}");
+            // location.replace("/"); // ok
+          } else {
+            // Obtener la lista de errores
+            const res = JSON.parse(JSON.stringify(data.errors));
+            acum_messages = "Datos incorrectos: El usuario esta incorrecto o la contraseña \n";
+            // for (key in res) {
+            //   console.log(key); console.log(res[key]);
+            //   acum_messages += ` [${key}] =` + res[key];
+            // }
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: acum_messages,
+            });//grecaptcha.reset() // recaptcha reset
+          }
+        });
+      }).catch((err) => {
+        console.log("Error:", err); //grecaptcha.reset() // recaptcha reset
+      });
+    }
+  </script>
+</body>
+
+</html>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+  // ocultar temporalmente el footer cuando se muestre el login
+  $(document).ready(function () {
+    $(".footer").attr("style", "/*! display: block; */");
+  });
+</script>
+{% endblock %}

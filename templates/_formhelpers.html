@@ -1,0 +1,85 @@
+{% macro render_field(classParent, fieldGiven, classField="") %}
+<!-- render_field("col-4", login_form.username, "") -->
+<div class="form-group {{classParent}}">
+  {{ fieldGiven.label }}
+  {{ fieldGiven(class="form-control " + classField) }}
+  <div class="invalid-feedback alert alert-danger">
+    {{ fieldGiven.description }}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro render_check(classParent, fieldGiven, classField="") %}
+<!-- render_check("col-4", login_form.username, "form-control", "Nombre de usuario") -->
+<div class="form-group {{classParent}}">
+  {{ fieldGiven(class="form-check-input" + classField) }}
+  {{ fieldGiven.label(class="form-check-label") }}
+  <div class="invalid-feedback alert alert-danger">
+    {{ fieldGiven["description"] }}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro render_hidden(fieldGiven) %}
+{{ fieldGiven() }}
+{% endmacro %}
+
+{% macro render_select(classParent, fieldGiven, classField="") -%}
+  <div class="form-group {{classParent}}">
+    {{ fieldGiven.label }}
+    {{ fieldGiven(class_="form-control " + classField) }}
+    <div class="invalid-feedback alert alert-danger">
+      {{ fieldGiven.description }}
+    </div>
+    {% for error in fieldGiven.errors %}
+      <span class="label label-danger">{{ error }}</span>
+    {% endfor %}
+  </div>
+{%- endmacro %}
+
+
+<!-- funcionSaveJS = sendRequest(this) -->
+{% macro render_modal(idModal, idTitleObjModal, sizeModal, funcionSaveJS) -%}
+<div class="modal fade" id="{{idModal}}" class="modal fade" role="dialog" style="overflow:hidden;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable {{ sizeModal }}">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h4 class="modal-title" id="{{idTitleObjModal}}"> </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {{- caller() }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" title="Guardar" onclick="{{funcionSaveJS}}">
+          Guardar
+        </button>
+        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro render_justmodal(idModal, idTitleObjModal, sizeModal) -%}
+<div class="modal fade" id="{{idModal}}" class="modal fade" role="dialog" style="overflow:hidden;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable {{ sizeModal }}">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h4 class="modal-title" id="{{idTitleObjModal}}">Lista de Ejemplares</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {{- caller() }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro %}

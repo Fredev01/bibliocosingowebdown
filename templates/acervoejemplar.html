@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_hidden, render_check, render_select, render_modal %}
+
+{% block title %} {{ super() }} {% endblock %}
+
+{% block navbar %} {{ super() }} {% endblock navbar %}
+
+{% block content %}
+<!-- colocar el html específico -->
+{% call render_modal("idModalEjemplar", "idTitleModalEjemplar", "modal-lg", "saveEjemplar(this)") %}
+
+<style>
+  #exampleejemplar_filter {
+    display: none;
+}
+</style>
+<div class="tab-content pt-2" id="myTabContent" style="max-height: 500px; overflow-y: scroll;">
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="modal-body overflow-auto">
+      <form id="formEjemplar">
+        <div class="row">
+          {{ obj_formejemplar.csrf_token }}
+          {{ render_hidden(obj_formejemplar.id) }}
+          {{ render_select ("col-md-8", obj_formejemplar.acervotitulo_id) }}
+          {{ render_select ("col-md-4", obj_formejemplar.estante_id) }}
+          {{ render_field("col-md-6", obj_formejemplar.numadquisicion)}}
+          {{ render_field("col-md-6", obj_formejemplar.asignacion_topografica)}}
+          {{ render_field("col-md-6", obj_formejemplar.fecharegistro)}}
+          {{ render_field("col-md-6", obj_formejemplar.nivel)}}
+          {{render_field("col-md-6", obj_formejemplar.estado)}}
+          {{ render_check("col-md-3", obj_formejemplar.esdonado)}}
+          {{ render_check("col-md-3", obj_formejemplar.puedeprestarse)}}
+        </div>
+      </form>
+      <br>
+    </div>
+  </div>
+</div>
+{% endcall %}
+
+
+<div class="row justify-content-center mt-4">
+  <div class="col-sm-12">
+    <div style="padding-left: 10px; padding-bottom: 5px">
+      <img src="{{ url_for('static', filename='img/libro5.png') }}" width="40px" height="40px" alt="">
+      <strong>Ejemplares</strong>
+
+    <div class="card" style="margin-top: 0px">
+      <div class="card-body">
+        <table id="exampleejemplar" class="display compact responsive" style="width:100%">
+          <thead>
+            <tr>
+              <th style="text-align: center;">Id</th>
+              <th style="text-align: center;">Estante</th>
+              <th style="text-align: center;">Titulo del acervo</th>
+              <th style="text-align: center;">Num. de adquisicion</th>
+              <th style="text-align: center;">Fecha de registro</th>
+              <th style="text-align: center;">Nivel</th>
+              <th style="text-align: center;">Estado</th>
+              <th style="text-align: center;">Es donado?</th>
+              <th style="text-align: center;">Puede prestarse?</th>
+              <th style="text-align: center;">Asignación Topográfica</th>
+              <th class="tam" style="text-align: center;"></th>
+              <th class="tam" style="text-align: center;"></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+  formEjemplar = "formEjemplar";
+  modalEjemplar = "idModalEjemplar";
+  modaltitleEjemplar = "idTitleModalEjemplar";
+  tablaEjemplar = "exampleejemplar";
+
+  function saveEjemplar(objHtmlClicked) {
+    $(`#${formEjemplar} #acervotitulo_id`).attr('disabled', false);
+    var formData = new FormData(document.getElementById(formEjemplar));
+    $(`#${formEjemplar} #acervotitulo_id`).attr('disabled', true);
+    if (!isFormValid(formEjemplar)) {
+      return;
+    }
+    objHtmlClicked.disabled = true;
+    sendDatosToServer("{{url_for('AcervoejemplarAPIs.api_acervoejemplar_add')}}", 'POST', formData).then((resp) => {
+      if (resp.success) {
+        showMsg('success', `Registro realizado correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000).then((result) => {
+          objHtmlClicked.disabled = false;
+          resetModalGeneric(formEjemplar, modalEjemplar, true);
+          $(`#${tablaEjemplar}`).DataTable().ajax.reload();
+        });
+      } else {
+        showError('error', 'Verifique la información proporcionada', resp, 4000).then((result) => {
+          objHtmlClicked.disabled = false;
+        });
+      }
+    });
+  }
+
+
+  $(document).ready(function () {
+    $('#exampleejemplar_filter').remove();
+    rutaAcervoE = `{{url_for('AcervoejemplarAPIs.acervoejemplares_get_all',acervotitulo_id='RENAME_VAL')}}`;
+    rutaAcervoE = rutaAcervoE.replace('RENAME_VAL','{{acervotitulo_idDado}}');
+    var objTablaEjemplar = $(`#${tablaEjemplar}`).DataTable({
+      processing: true,
+      ordering: false,
+      paging: true,
+      searching: { "regex": false },
+      lengthMenu: [[10, 50, 100], [10, 50, 100]],
+      pageLength: 10,
+      serverSide: true,
+      ajax: rutaAcervoE, 
+      dom: "<'row'<'col'f><'col'B>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row'<'col'i><'col text-end'l><'col'p>>",
+      columnDefs: [
+        {responsivePriority:1,targets:0},
+        {responsivePriority:2,targets:8},
+        {responsivePriority:3,targets:9},
+
+        {
+          targets: 0, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            return data[0];
+          }
+        },
+        {
+          targets: 1, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nombre del estante, en lugar del id
+            return data[2];
+          }
+        },
+
+        {
+          targets: 2, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el titulo del acervo, en lugar del id
+            return data[4];
+          }
+        },
+        {
+          targets: 3, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el numero de adquisicion 
+            return data[5];
+          }
+        },
+        {
+          targets: 4, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar la fecha de registro
+            return data[6];
+          }
+        },
+        {
+          targets: 5, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nivel
+            return data[7];
+          }
+        },
+        {
+          targets: 6, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar el nivel
+            return data[8];
+          }
+        },
+        {
+          targets: 7, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar si es donado
+            if (data[9] ==0 ) {
+              return "No";
+            } else {
+              return "Si";
+            }
+          }
+        },
+        {
+          targets: 8, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            // mostrar si se puede prestar
+            if (data[9] ==0 ) {
+              return "No";
+            } else {
+              return "Si";
+            }
+          }
+        },
+        {
+          targets: 9, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+            return data[11];
+          }
+        },
+        {
+          targets: 10, data: null, render: function (data, type, row, meta) {
+            return `
+            <button type="button" class="btn btn-sm btn-outline" 
+              onclick="showModalEjemplar(${meta.row})" title="Editar registro">
+              <img src="{{url_for('static',filename='img/editar.png')}}" width="20px" height="20px" alt="">
+            </button>
+            `
+          }
+        },
+        {
+          targets: 11, data: null,
+          render: function (data, type, row, meta) {
+            return `
+            <button type="button" class="btn btn-sm btn-outline" 
+              onclick="deleteRowEjemplar(${meta.row})" title="Borrar registro?">
+              <img src="{{url_for('static',filename='img/eliminar.png')}}" width="20px" height="20px" alt="">
+            </button>
+            `
+          },
+        },
+      ],
+    });
+    // <div style="padding-bottom: 5px;" class="d-grid gap-2 d-md-flex justify-content-md-end">
+    btnTest = `
+    <div class="btn-toolbar" role="toolbar">    
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning" title="Agregar nuevo registro"
+          onclick="showModalEjemplar()">
+          <img src="{{url_for('static',filename='img/icons8-mas.png')}}" width="18px" height="18px" alt="">
+        </button>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning" 
+          onclick="fnRefreshTable('#${tablaEjemplar}')" title="Recargar información de la tabla">
+          <img src="{{url_for('static',filename='img/icons8-syncro.png')}}" width="18px" height="18px" alt="">
+        </button>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning"
+          onclick="fnExportTableToExcel('${tablaEjemplar}','acervoejemplares')" title="Descargar registros">
+          <img src="{{url_for('static',filename='img/icons8-descarga.png')}}" width="18px" height="18px" alt="">
+        </button>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-sm btn-outline-warning"
+         title="Descargar registros en pdf">
+         <a href="{{url_for('AcervoejemplarAPIs.download_report')}}"> <img src="{{url_for('static',filename='img/icons8-pdf.png')}}" width="20px" height="20px" alt=""></a>
+        </button>
+      </div>
+    </div>
+    `;
+    $(`#${tablaEjemplar}_wrapper .dt-buttons`).html(btnTest);
+    // al dar enter en el serach enviar la búsqueda 
+    $(`#${tablaEjemplar}_filter input`).unbind().bind('keyup', function (e) {
+      if (e.keyCode === 13) {
+        objTablaEjemplar.search(this.value).draw();
+      }
+    });
+  });
+
+  // Editar registro
+  function showModalEjemplar(idRow = null) {
+    resetModalGeneric(formEjemplar, modalEjemplar, false)
+
+    $(`#${modaltitleEjemplar}`).html("Agregar nuevo registro");
+
+    let estante_id = "-1";
+    let acervotitulo_id = "{{acervotitulo_idDado}}";
+
+    let fechaActual = moment().format('YYYY-MM-DD');
+    $(`#${formEjemplar} #fecharegistro`).val(fechaActual);
+
+    if (idRow != null) {
+      $(`#${modaltitleEjemplar}`).html("Editar registro");
+      // mostrar los datos en los inputs correspondientes
+      var data = $('#exampleejemplar').DataTable().row(idRow).data();
+      // console.log(data);
+      $(`#${formEjemplar} #id`).val(data[0]);
+      estante_id = data[1];
+      acervotitulo_id = data[3];
+      $(`#${formEjemplar} #numadquisicion`).val(data[5]);
+      $(`#${formEjemplar} #fecharegistro`).val(data[6]);
+      $(`#${formEjemplar} #nivel`).val(data[7]);
+      $(`#${formEjemplar} #estado`).val(data[8]);
+      $(`#${formEjemplar} #esdonado`).val(data[9]);
+      $(`#${formEjemplar} #puedeprestarse`).val(data[10]);
+      $(`#${formEjemplar} #asignacion_topografica`).val(data[11]);
+    }else{
+      // Cuando se agregue un nuevo ejemplar
+      try {
+        // obtener de la primera fila de la tabla, la asignacion_topografica
+        // y asignarla de forma predefinida, para que el usuario solamente la actualice
+        var dataEjemplarReciente = $('#exampleejemplar').DataTable().row(0).data();
+        estante_id = dataEjemplarReciente[1];
+        $(`#${formEjemplar} #nivel`).val(dataEjemplarReciente[7]);
+        $(`#${formEjemplar} #asignacion_topografica`).val(dataEjemplarReciente[11]);
+      } catch (error) {
+      }
+    }
+    setSelect(`#${formEjemplar} #estante_id`, "{{url_for('EstanteAPIs.estante_get_combo')}}", 'id', '' + estante_id);
+    setSelect(`#${formEjemplar} #acervotitulo_id`, "{{url_for('AcervotituloAPIs.acervotitulo_get_combo')}}", 'id', '' + acervotitulo_id);
+    $(`#${formEjemplar} #acervotitulo_id`).attr('disabled', true);
+    $(`#${modalEjemplar}`).modal("show");
+    setTimeout(() => {
+      // despues de 10 milisegundos, enfocarse la primera caja de texto
+      $(`#${formEjemplar} #numadquisicion`).focus();
+    }, 200);
+  }
+
+  // Eliminar un registro
+  function deleteRowEjemplar(idRow = null) {
+    var data = $(`#${tablaEjemplar}`).DataTable().row(idRow).data();
+    Swal.fire({
+      icon: "error",
+      title: `Realmente deseas eliminar este registro?`,
+      text: "Se borrará de forma permanente!!!",
+      showCancelButton: true,
+      confirmButtonText: 'Borrar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        var formData = new FormData();
+        formData.append("id", data[0])
+        formData.append("csrf_token", $(`#csrf_token`).val())
+
+        sendDatosToServer("{{url_for('AcervoejemplarAPIs.acervoejemplar_delete')}}", "DELETE", formData
+        ).then((resp) => {
+          // console.log(resp);
+          if (resp && resp.data.oper == true) {
+            showMsg("success", `Se eliminó correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000
+            ).then((result) => {
+              $(`#${tablaEjemplar}`).DataTable().ajax.reload();
+            });
+          } else {
+            showError("error", "Verifique la información proporcionada", resp, 4000).then((result) => {
+            });
+          }
+        });
+      }
+    });
+
+  }
+
+</script>
+
+
+{% endblock %}

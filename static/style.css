@@ -1,0 +1,120 @@
+/* * {
+  margin: 0;
+  padding: 0;
+} */
+/* body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #FFFAF5;
+} */
+.custom-btn-color {
+  background-color: #007A7B;
+  transition: background-color 0.3s; /* Añade una transición suave al cambio de color de fondo */
+}
+
+.custom-btn-color:hover {
+  background-color: #00595B; /* Cambia el color de fondo cuando se pasa el cursor sobre el botón */
+}
+
+.container {
+  margin-bottom: 300px; /* Ajusta este valor según sea necesario */
+}
+
+footer {
+  margin: 0;
+  padding: 0;
+  color: #fff;
+  background: #007A7B;
+  position: fixed; /* o position: absolute; */
+  bottom: 0;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  display: none; /* Inicialmente oculto */
+}
+footer ul {
+  margin-top: 13px;
+  list-style: none;
+  text-decoration: underline;
+}
+footer p, footer a {
+  color: #fff;
+  max-width: 50em;
+  font-size: 0.9em;
+  line-height: 23px;
+  margin-top: 13px;
+  display: inline;
+}
+footer a {
+  text-decoration: none;
+  margin-top: 13px;
+}
+
+.container-foot {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1em;
+  display: flex;
+  /* justify-content: space-between; */
+  gap: 1em;
+}
+/* .brand {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin-bottom: 1em;
+} */
+/* .media-icons li,
+.services-icons li {
+  display: inline-block;
+  margin: 0.5em 0.5em 0.5em 0;
+} */
+/* .media-icons a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+} */
+.media-icons a:hover {
+  background: #007A7B;
+  color: #ea903c;
+}
+.services-icons a {
+  font-size: 1.5em;
+}
+.footer .menu a:hover {
+  color: #ea903c;
+  text-decoration: underline;
+}
+/* == responsive == */
+@media screen and (max-width: 900px) {
+  .container {
+    flex-direction: none;
+  }
+}
+
+/*ESTILOS DEL HEADER*/
+header {
+  background-color: #fff; /* Cambiar el color de fondo del header */
+  padding: 10px 0; /* Ajustar el relleno superior e inferior */
+}
+
+.navbar-brand {
+  font-size: 24px; /* Cambiar el tamaño del texto del logo */
+  font-weight: bold; /* Hacer el texto del logo en negrita */
+  color: #333; /* Cambiar el color del texto del logo */
+}
+
+.navbar-toggler-icon {
+  color: #333; /* Cambiar el color del icono del botón de hamburguesa */
+}
+
+.navbar-nav .nav-link {
+  font-size: 18px; /* Cambiar el tamaño del texto de los elementos del menú */
+  color: #333; /* Cambiar el color del texto de los elementos del menú */
+  margin-right: 20px; /* Ajustar el margen derecho entre los elementos del menú */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #555; /* Cambiar el color del texto de los elementos del menú al pasar el ratón por encima */
+}

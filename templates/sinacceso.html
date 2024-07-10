@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %} Acceso Restringido {% endblock %}
+
+{% block styles %}
+<style>
+  /* Agrega estilos personalizados aquí */
+  .container-fluid {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  h1 {
+    color: #FF5733; /* Color llamativo */
+    font-size: 3em;
+  }
+
+  p {
+    font-size: 1.2em;
+    margin-top: 20px;
+  }
+
+  .lock-icon {
+    font-size: 5em;
+    color: #FF5733;
+  }
+</style>
+{% endblock %}
+
+{% block navbar %} {{ super() }} {% endblock navbar %}
+
+{% block content %}
+  <div class="container-fluid">
+    <i class="fas fa-lock lock-icon"></i>
+    <h1>Acceso Restringido</h1>
+    <p>Lo sentimos, no tienes permiso para acceder a esta página.</p>
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+  <script>
+    setTimeout(() => {
+      window.location.replace("http://127.0.0.1:5000/");
+    }, 1500);
+  </script>
+{% endblock %}

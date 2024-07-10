@@ -1,0 +1,526 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_hidden, render_check, render_select, render_modal %}
+
+{% block title %} {{ super() }} {% endblock %}
+
+{% block navbar %} {{ super() }} {% endblock navbar %}
+{% block styles %}
+<style>
+    .btn-devolver {
+        background-color: #007A7B;
+        color: #ffffff;
+        font-size: 18;
+        font-weight: 700;
+    }
+
+    .btn-devolver:hover {
+        background-color: #007A7B;
+        color: #ffffff;
+        opacity: 0.9;
+    }
+
+    .btn-extension {
+        background-color: #FEA02F;
+        color: #ffffff;
+        font-size: 18;
+        font-weight: 700;
+    }
+
+    .btn-extension:hover {
+        background-color: #FEA02F;
+        color: #ffffff;
+        opacity: 0.9;
+    }
+</style>
+{% endblock styles %}
+{% block content %}
+<!-- colocar el html específico -->
+
+{% call render_modal("idObjModal", "idTitleObjModal", "modal-lg", "saveData(this)") %}
+
+<div class="tab-content pt-2" id="myTabContent" style="max-height: 500px; overflow-y: scroll;">
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <div class="modal-body overflow-auto">
+            <form id="formMain">
+                <div class="row" style="margin: -20px 0px;">
+                    {{ obj_form.csrf_token }}
+                    {{ render_hidden(obj_form.id) }}
+                    {{ render_field("col-md-12", obj_form.usuario_presta_id) }}
+                    {{ render_field("col-md-12", obj_form.afiliado_id) }}
+                    {{ render_field("col-md-6", obj_form.fecha_prestamo )}}
+                    {{ render_field("col-md-6", obj_form.fecha_devolucion_plan)}}
+                    {{ render_field("col-md-12", obj_form.acervo_ejemplar_id) }}
+                </div>
+            </form><br>
+        </div>
+    </div>
+</div>
+{% endcall %}
+
+{% call render_modal("idObjModaldevolver", "idTitleObjModaldevolver", "modal-lg", "saveDatadevolver(this)") %}
+
+<div class="tab-content pt-2" id="myTabContentdevolver" style="max-height: 500px; overflow-y: scroll;">
+    <div class="tab-pane fade show active" id="homedevolver" role="tabpanel" aria-labelledby="home-tab">
+        <div class="modal-body overflow-auto">
+            <form id="formMaindevolver">
+                <div class="row" style="margin: -20px 0px;">
+                    {{ obj_form_devolver.csrf_token }}
+                    {{ render_hidden(obj_form_devolver.id) }}
+                    {{ render_field("col-md-4", obj_form_devolver.fecha_devolucion_real) }}
+                    {{ render_field("col-md-8", obj_form_devolver.usuario_recibe_id )}}
+                </div>
+            </form><br>
+        </div>
+    </div>
+</div>
+{% endcall %}
+
+{% call render_modal("idObjModalExtension", "idTitleObjModalExtension", "modal-lg", "saveDataExtension(this)") %}
+
+<div class="tab-content pt-2" id="myTabContentExtension" style="max-height: 500px; overflow-y: scroll;">
+    <div class="tab-pane fade show active" id="homeExtension" role="tabpanel" aria-labelledby="home-tab">
+        <div class="modal-body overflow-auto">
+            <form id="formMainExtension">
+                <div class="row" style="margin: -20px 0px;">
+                    {{ obj_form_extension.csrf_token }}
+                    {{ render_hidden(obj_form_extension.id) }}
+                    {{ render_field("col-md-6", obj_form_extension.fecha_devolucion_viejo) }}
+                    {{ render_field("col-md-6", obj_form_extension.fecha_devolucion_nuevo )}}
+                </div>
+            </form><br>
+        </div>
+    </div>
+</div>
+{% endcall %}
+<div class="row">
+    <div class="col-12">
+        <div style="padding-left: 10px;">
+            <img src="{{ url_for('static', filename='img/entregar.png') }}" width="40px" height="40px" alt="">
+            <strong>Préstamos/devoluciones</strong>
+
+        </div>
+        <div class="container-fluid">
+            <div class="card" style="margin-top: 10px">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-auto">
+                            <div class="form-floating">
+                                <input class="form-control" type="date" name="finicio" id="finicio">
+                                <label for="finicio">Inicio préstamo</label>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="form-floating">
+                                <input class="form-control" type="date" name="ffin" id="ffin">
+                                <label for="ffin">Fin préstamo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table id="example" class="display compact responsive" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Id</th>
+                                <th style="text-align: center;">Afiliado</th>
+                                <th style="text-align: center;">Titulo del acervo</th>
+                                <th style="text-align: center;">Fecha préstamo</th>
+                                <th style="text-align: center;">Fecha Límite</th>
+                                <th style="text-align: center;">Fecha devolución real</th>
+                                <th style="text-align: center;">Usuario que prestó</th>
+                                <th style="text-align: center;">Usuario que recibió</th>
+                                <th style="text-align: center;">Estado</th>
+                                <th class="tam" style="text-align: center;"></th>
+                                <th class="tam" style="text-align: center;"></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+    formDado = "formMain";
+    modalDado = "idObjModal";
+    modaltitleDado = "idTitleObjModal";
+    tablaDada = "example";
+
+    function saveData(objHtmlClicked) {
+        $(`#${modalDado} #usuario_presta_id`).attr('disabled', false);
+        // $(`#${modalDado} #usuario_recibe_id`).attr('disabled', false);
+        var formData = new FormData(document.getElementById(formDado));
+        $(`#${modalDado} #usuario_presta_id`).attr('disabled', true);
+        // $(`#${modalDado} #usuario_recibe_id`).attr('disabled', true);
+        if (!isFormValid(formDado)) {
+            return;
+        }
+        // Realizar validaciones adicionales
+        // hacer la petición al servidor
+        objHtmlClicked.disabled = true;
+        sendDatosToServer("{{url_for('AcervoPrestamoAPIs.api_acervoprestamo_add')}}", 'POST', formData).then((resp) => {
+            console.log(resp)
+            if (resp.success) {
+                showMsg('success', `Registro realizado correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000).then((result) => {
+                    objHtmlClicked.disabled = false;
+                    resetModalGeneric(formDado, modalDado, true);
+                    $(`#${tablaDada}`).DataTable().ajax.reload();
+                });
+            } else {
+                showError('error', 'Verifique la información proporcionada', resp, 4000).then((result) => {
+                    objHtmlClicked.disabled = false;
+                });
+            }
+        });
+    }
+
+    formDadodevolver = "formMaindevolver";
+    modalDadodevolver = "idObjModaldevolver";
+    modaltitleDadodevolver = "idTitleObjModaldevolver";
+    tablaDada = "example";
+
+    function saveDatadevolver(objHtmlClicked) {
+        $(`#${modalDadodevolver} #usuario_recibe_id`).attr('disabled', false);
+        // $(`#${modalDado} #usuario_recibe_id`).attr('disabled', false);
+        var formDatadevolver = new FormData(document.getElementById(formDadodevolver));
+        $(`#${modalDadodevolver} #usuario_recibe_id`).attr('disabled', true);
+        // $(`#${modalDado} #usuario_recibe_id`).attr('disabled', true);
+        if (!isFormValid(formDadodevolver)) {
+            return;
+        }
+        // Realizar validaciones adicionales
+        // hacer la petición al servidor
+        objHtmlClicked.disabled = true;
+        sendDatosToServer("{{url_for('AcervoPrestamoAPIs.api_acervoprestamo_devolver')}}", 'POST', formDatadevolver).then((resp) => {
+            console.log(resp)
+            if (resp.success) {
+                showMsg('success', `Registro realizado correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000).then((result) => {
+                    objHtmlClicked.disabled = false;
+                    resetModalGeneric(formDadodevolver, modalDadodevolver, true);
+                    $(`#${tablaDada}`).DataTable().ajax.reload();
+                });
+            } else {
+                showError('error', 'Verifique la información proporcionada', resp, 4000).then((result) => {
+                    objHtmlClicked.disabled = false;
+                });
+            }
+        });
+    }
+
+
+    formDadoExtension = "formMainExtension";
+    modalDadoExtension = "idObjModalExtension";
+    modaltitleDadoExtension = "idTitleObjModalExtension";
+    tablaDada = "example";
+
+    function saveDataExtension(objHtmlClicked) {
+        var formDataExtension = new FormData(document.getElementById(formDadoExtension));
+        if (!isFormValid(formDadoExtension)) {
+            return;
+        }
+        // Realizar validaciones adicionales
+        // hacer la petición al servidor
+        objHtmlClicked.disabled = true;
+        sendDatosToServer("{{url_for('AcervoPrestamoAPIs.api_acervoprestamo_extension')}}", 'POST', formDataExtension).then((resp) => {
+            console.log(resp)
+            if (resp.success) {
+                showMsg('success', `Registro realizado correctamente !!!`, `Ahora puedes continuar cerrando esta ventana`, 4000).then((result) => {
+                    objHtmlClicked.disabled = false;
+                    resetModalGeneric(formDadoExtension, modalDadoExtension, true);
+                    $(`#${tablaDada}`).DataTable().ajax.reload();
+                });
+            } else {
+                showError('error', 'Verifique la información proporcionada', resp, 4000).then((result) => {
+                    objHtmlClicked.disabled = false;
+                });
+            }
+        });
+    }
+
+    function reportePDF() {
+        var datoAbuscar = $('#example_filter input[type="search"]').val() || "";
+        var finicio = $("#finicio").val() || "";
+        var ffin = $("#ffin").val() || "";
+    
+        var queryParams = new URLSearchParams({
+            finicio: finicio,
+            ffin: ffin,
+            'search[value]': datoAbuscar,
+            rep: 'si'
+        });
+    
+        var url = '{{ url_for("AcervoPrestamoAPIs.prestamos_get_all") }}' + '?' + queryParams;
+    
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();  // Obtener los bytes del PDF como un Blob
+            })
+            .then(blob => {
+                // Crear un enlace temporal para descargar el PDF
+                var urlPDF = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = urlPDF;
+                
+                const fechaActual = new Date();
+
+                // Obtener el año, mes y día
+                const año = fechaActual.getFullYear();
+                const mes = fechaActual.getMonth() + 1; // Los meses van de 0 a 11, por lo que sumamos 1
+                const dia = fechaActual.getDate();
+                console.log(año)
+                // Formatear la fecha como string (opcional)
+                const fechaString = `${año}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
+
+                a.download = `Prestamos_${fechaString}.pdf`;  // Nombre del archivo
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(urlPDF);  // Liberar recursos
+
+            })
+            .catch(error => {
+                // Manejar errores
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+
+    function refreshTable() {
+        var datoAbuscar = $('#example_filter input[type="search"]').val();
+        if (datoAbuscar == undefined){
+            datoAbuscar = "";
+        }
+        var urlDada = '{{url_for("AcervoPrestamoAPIs.prestamos_get_all")}}'
+            + '?finicio=' + $("#finicio").val() + '&ffin=' + $("#ffin").val()
+            + '&search[value]=' + datoAbuscar
+            ;
+        var objTablaDada = $(`#${tablaDada}`).DataTable({
+            processing: true,
+            ordering: false,
+            paging: true,
+            destroy: true,
+            searching: { "regex": true },
+            lengthMenu: [[10, 50, 100, -1], [10, 50, 100, "All"]],
+            pageLength: 10,
+            serverSide: true,
+            ajax: urlDada,
+            dom: "<'row'<'col'f><'col'B>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col'i><'col text-end'l><'col'p>>",
+            columnDefs: [
+                { responsivePriority: 1, targets: 0 },
+                { responsivePriority: 3, targets: 9 },
+                { responsivePriority: 2, targets: 10 },
+                {
+                    targets: 0, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                        // mostrar el nombre de la persona, en lugar del id
+                        return data[0];
+                    }
+                },
+                {
+                    targets: 1, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                        // mostrar el nombre de la persona, en lugar del id
+                        return data[2];
+                    }
+                },
+                {
+                    targets: 2, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                        // mostrar el nombre de la persona, en lugar del id
+                        return data[4];
+                    }
+                },
+                {
+                    // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+                    targets: 3,
+                    className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            // console.log(`fila ${meta.row}: `, data); 
+                            return moment(data[5]).format('DD/MMM/YYYY');
+                        } return data[5];
+                    }
+                },
+                {
+                    // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+                    targets: 4,
+                    className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            // console.log(`fila ${meta.row}: `, data); 
+                            return moment(data[6]).format('DD/MMM/YYYY');
+                        } return data[6];
+                    }
+                },
+                {
+                    // las columnas inician en 0 y corresponden a los encabezados de la tabla html
+                    targets: 5,
+                    className: 'dt-head-center dt-body-center', data: null, render: function (data, type, row, meta) {
+                        if (data[7] != null) {
+                            if (type === 'display') {
+                                // console.log(`fila ${meta.row}: `, data); 
+                                return moment(data[7]).format('DD/MMM/YYYY');
+                            } return data[7];
+                        } else {
+                            return " ";
+                        }
+                    }
+                },
+
+                {
+                    targets: 6, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                        // mostrar el nombre de la persona, en lugar del id
+                        return data[9];
+                    }
+                },
+                {
+                    targets: 7, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                        // mostrar el nombre de la persona, en lugar del id
+                        return data[11];
+                    }
+                },
+                {
+                    targets: 8, className: 'dt-head-center, dt-body-center', data: null, render: function (data, type, row, meta) {
+                        if (data[12] === "P") {
+                            return "Devolución pendiente";
+                        } else if (data[12] === "D") {
+                            return "Devuelto";
+                        } else {
+                            return "Cancelado";
+                        }
+                    }
+                },
+                {
+                    targets: 9, data: null, render: function (data, type, row, meta) {
+                        if (data[12] != "D") {
+                            return `
+                                <button type="button" class="btn btn-sm btn-outline btn-devolver" 
+                                onclick="showModaldevolver(${meta.row})" title="Devolver acervo">
+                                Registrar Devolución
+                                </button>
+                                `;
+                        } else {
+                            return " ";
+                        }
+                    }
+                },
+                {
+                    targets: 10, data: null, render: function (data, type, row, meta) {
+                        if (data[12] != "D") {
+                            return `
+                                <button type="button" class="btn btn-sm btn-outline btn-extension" 
+                                onclick="showModalextension(${meta.row})" title="Extensión">
+                                Extensión
+                                </button>
+                                `;
+                        } else {
+                            return " ";
+                        }
+                    }
+                },
+            ],
+        });
+        // <div style="padding-bottom: 5px;" class="d-grid gap-2 d-md-flex justify-content-md-end">
+        btnTest = `
+        <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group me-2" role="group">
+            <button type="button" class="btn btn-sm btn-outline-warning" title="Agregar nuevo registro"
+            onclick="showModal()">
+            <img src="{{url_for('static',filename='img/icons8-mas.png')}}" width="18px" height="18px" alt="">
+            </button>
+        </div>
+        <div class="btn-group me-2" role="group">
+            <button type="button" class="btn btn-sm btn-outline-warning" 
+            onclick="refreshTable()" title="Recargar información de la tabla">
+            <img src="{{url_for('static',filename='img/icons8-syncro.png')}}" width="18px" height="18px" alt="">
+            </button>
+        </div>
+        <div class="btn-group me-2" role="group">
+            <button type="button" class="btn btn-sm btn-outline-warning"
+            onclick="fnExportTableToExcel('${tablaDada}','acervoprestamo')" title="Descargar registros">
+            <img src="{{url_for('static',filename='img/icons8-descarga.png')}}" width="18px" height="18px" alt="">
+            </button>
+        </div>
+        <div class="btn-group me-2" role="group">
+            <button type="button" class="btn btn-sm btn-outline-warning" id="descargarPDF" onclick="reportePDF()"
+             title="Descargar registros en pdf">
+             <a> <img src="{{url_for('static',filename='img/icons8-pdf.png')}}" width="20px" height="20px" alt=""></a>
+            </button>
+          </div>
+        </div>
+        `;
+        $(`#${tablaDada}_wrapper .dt-buttons`).html(btnTest);
+        // reestablecer el dato a buscar...
+        $('#example_filter input[type="search"]').val( datoAbuscar );
+        // al dar enter en el serach enviar la búsqueda 
+        $(`#${tablaDada}_filter input`).unbind().bind('keyup', function (e) {
+            if (e.keyCode === 13) {
+                refreshTable();
+                // objTablaDada.search(this.value).draw();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        refreshTable();
+    });
+
+    // Editar registro
+    function showModal(idRow = null) {
+        resetModalGeneric(formDado, modalDado, false)
+        $(`#${modaltitleDado}`).html("Agregar nuevo registro");
+        let usuario_presta_id = "{{current_user.id}}";
+        let acervo_ejemplar_id = "-1";
+        let afiliado_id = "-1";
+        let fechaActual = moment().format('YYYY-MM-DD');
+        $(`#${modalDado} #fecha_prestamo`).val(fechaActual);
+        // Calcular la fecha de devolución sumando 7 días a la fecha de préstamo
+        let fechaDevolucionPlan = moment(fechaActual).add(7, 'days').format('YYYY-MM-DD');
+        // Establecer la fecha de devolución plan en el campo correspondiente
+        $(`#${modalDado} #fecha_devolucion_plan`).val(fechaDevolucionPlan);
+        setSelect(`#${formDado} #usuario_presta_id`, "{{url_for('AuthApi.users_get_combo')}}", 'id', '' + usuario_presta_id);
+        $(`#${modalDado} #usuario_presta_id`).attr('disabled', true);
+        setSelect(`#${formDado} #afiliado_id`, "{{url_for('AuthApi.users_afiliado_get_combo')}}", 'id', '' + afiliado_id);
+        setSelect(`#${formDado} #acervo_ejemplar_id`, "{{url_for('AcervoPrestamoAPIs.acervo_get_combo')}}", 'id', '' + acervo_ejemplar_id);
+        // $(`#${modalDado} #fecha_prestamo`).prop('disabled', true);
+        // $(`#${modalDado} #fecha_devolucion_plan`).prop('disabled', true);
+        $(`#${modalDado}`).modal("show");
+        setTimeout(() => {
+            // despues de 10 milisegundos, enfocarse la primera caja de texto
+            $(`#${formDado} #acervo_ejemplar_id`).focus();
+        }, 200);
+    }
+
+    function showModaldevolver(idRow = null) {
+        var data = $(`#${tablaDada}`).DataTable().row(idRow).data();
+        resetModalGeneric(formDadodevolver, modalDadodevolver, false)
+        $(`#${modaltitleDadodevolver}`).html("Registrar devolución");
+        let usuario_recibe_id = "{{current_user.id}}";
+        let fechaActual = moment().format('YYYY-MM-DD');
+        // Establecer la fecha actual en el campo fecha_prestamo
+        $(`#${modalDadodevolver} #id`).val(data[0]);
+        $(`#${modalDadodevolver} #fecha_devolucion_real`).val(fechaActual);
+        // Calcular la fecha de devolución sumando 7 días a la fecha de préstamo
+        setSelect(`#${formDadodevolver} #usuario_recibe_id`, "{{url_for('AuthApi.users_get_combo')}}", 'id', '' + usuario_recibe_id);
+        $(`#${modalDadodevolver} #usuario_recibe_id`).attr('disabled', true);
+        $(`#${modalDadodevolver}`).modal("show");
+    }
+
+    function showModalextension(idRow = null) {
+        var data = $(`#${tablaDada}`).DataTable().row(idRow).data();
+        resetModalGeneric(formDadoExtension, modalDadoExtension, false)
+        $(`#${modaltitleDadoExtension}`).html("Registrar extension");
+        let fechaPlanOld = moment(data[6]).format('YYYY-MM-DD');
+        let fechaPlanNuevo = moment(fechaPlanOld).add(7, 'days').format('YYYY-MM-DD');
+        $(`#${modalDadoExtension} #id`).val(data[0]);
+        $(`#${modalDadoExtension} #fecha_devolucion_viejo`).val(fechaPlanOld);
+        $(`#${modalDadoExtension} #fecha_devolucion_nuevo`).val(fechaPlanNuevo);
+        $(`#${modalDadoExtension}`).modal("show");
+    }
+
+</script>
+
+{% endblock %}
